@@ -1,0 +1,32 @@
+#Crontab Image
+# Pulling Ubuntu image
+FROM debian
+
+# Copying source folder to the container
+COPY backup.sh .
+
+# Installing dependencies
+RUN apt-get update && apt-get install -y openssh-server
+
+# Install SSH Client
+RUN apt-get install openssh-client -y
+
+RUN apt-get install nano -y
+
+# Giving permission to backup.sh
+RUN chmod +x backup.sh
+
+# Updating packages and installing cron
+RUN apt-get update && apt-get install cron -y 
+
+# Adding crontab information to the appropriate location
+RUN echo "* * * * * root ./backup.sh" > /etc/cron.d/my-cron-file
+
+# Giving permission to crontab file
+RUN chmod 0644 /etc/cron.d/my-cron-file
+
+# Running crontab
+RUN crontab /etc/cron.d/my-cron-file
+
+# Creating entry point for cron 
+CMD ["cron", "-f"]

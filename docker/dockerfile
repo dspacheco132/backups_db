@@ -1,0 +1,23 @@
+FROM ubuntu:latest
+
+# Update
+RUN apt-get update
+
+# Instala o docker
+RUN apt-get install docker.io -y 
+
+# Instala o Cron
+RUN apt-get update && apt-get install cron -y 
+
+# Mandar um comando cronjob para o arquivo cron
+# Cada 1 Minuto ele faz
+RUN echo "* * * * * docker exec backup_system_db ./backup.sh" > /etc/cron.d/my-cron-file
+
+# Permições do arquivo my-cron-file
+RUN chmod 0644 /etc/cron.d/my-cron-file
+
+# Executar o CronJob
+RUN crontab /etc/cron.d/my-cron-file
+
+# EntryPoint para o CronJob
+CMD ["cron", "-f"]
